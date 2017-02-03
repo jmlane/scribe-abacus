@@ -2,36 +2,132 @@ module Tests exposing (..)
 
 import Test exposing (..)
 import Expect
-import Fuzz exposing (list, int, tuple, string)
-import String
+import Encounter exposing (..)
 
 
 all : Test
 all =
-    describe "Sample Test Suite"
-        [ describe "Unit test examples"
-            [ test "Addition" <|
-                \() ->
-                    Expect.equal (3 + 7) 10
-            , test "String.left" <|
-                \() ->
-                    Expect.equal "a" (String.left 1 "abcdefg")
-            , test "This test should fail - you should remove it" <|
-                \() ->
-                    Expect.fail "Failed as expected!"
-            ]
-        , describe "Fuzz test examples, using randomly generated input"
-            [ fuzz (list int) "Lists always have positive length" <|
-                \aList ->
-                    List.length aList |> Expect.atLeast 0
-            , fuzz (list int) "Sorting a list does not change its length" <|
-                \aList ->
-                    List.sort aList |> List.length |> Expect.equal (List.length aList)
-            , fuzzWith { runs = 1000 } int "List.member will find an integer in a list containing it" <|
-                \i ->
-                    List.member i [ i ] |> Expect.true "If you see this, List.member returned False!"
-            , fuzz2 string string "The length of a string equals the sum of its substrings' lengths" <|
-                \s1 s2 ->
-                    s1 ++ s2 |> String.length |> Expect.equal (String.length s1 + String.length s2)
+    describe "Combat Encounters"
+        [ describe "XP Thresholds by character level"
+            [ describe "Easy encounter difficulty"
+                ([ ( 1, 25 )
+                 , ( 2, 50 )
+                 , ( 3, 75 )
+                 , ( 4, 125 )
+                 , ( 5, 250 )
+                 , ( 6, 300 )
+                 , ( 7, 350 )
+                 , ( 8, 450 )
+                 , ( 9, 550 )
+                 , ( 10, 600 )
+                 , ( 11, 800 )
+                 , ( 12, 1000 )
+                 , ( 13, 1100 )
+                 , ( 14, 1250 )
+                 , ( 15, 1400 )
+                 , ( 16, 1600 )
+                 , ( 17, 2000 )
+                 , ( 18, 2100 )
+                 , ( 19, 2400 )
+                 , ( 20, 2800 )
+                 ]
+                    |> List.map
+                        (\( level, xp ) ->
+                            test ("level " ++ toString level) <|
+                                \() ->
+                                    Expect.equal xp <|
+                                        Encounter.threshold Easy level
+                        )
+                )
+            , describe "Medium encounter difficulty"
+                ([ ( 1, 50 )
+                 , ( 2, 100 )
+                 , ( 3, 150 )
+                 , ( 4, 250 )
+                 , ( 5, 500 )
+                 , ( 6, 600 )
+                 , ( 7, 750 )
+                 , ( 8, 900 )
+                 , ( 9, 1100 )
+                 , ( 10, 1200 )
+                 , ( 11, 1600 )
+                 , ( 12, 2000 )
+                 , ( 13, 2200 )
+                 , ( 14, 2500 )
+                 , ( 15, 2800 )
+                 , ( 16, 3200 )
+                 , ( 17, 3900 )
+                 , ( 18, 4200 )
+                 , ( 19, 4900 )
+                 , ( 20, 5700 )
+                 ]
+                    |> List.map
+                        (\( level, xp ) ->
+                            test ("level " ++ toString level) <|
+                                \() ->
+                                    Expect.equal xp <|
+                                        Encounter.threshold Medium level
+                        )
+                )
+            , describe "Hard encounter difficulty"
+                ([ ( 1, 75 )
+                 , ( 2, 150 )
+                 , ( 3, 225 )
+                 , ( 4, 375 )
+                 , ( 5, 750 )
+                 , ( 6, 900 )
+                 , ( 7, 1100 )
+                 , ( 8, 1400 )
+                 , ( 9, 1600 )
+                 , ( 10, 1900 )
+                 , ( 11, 2400 )
+                 , ( 12, 3000 )
+                 , ( 13, 3400 )
+                 , ( 14, 3800 )
+                 , ( 15, 4300 )
+                 , ( 16, 4800 )
+                 , ( 17, 5900 )
+                 , ( 18, 6300 )
+                 , ( 19, 7300 )
+                 , ( 20, 8500 )
+                 ]
+                    |> List.map
+                        (\( level, xp ) ->
+                            test ("level " ++ toString level) <|
+                                \() ->
+                                    Expect.equal xp <|
+                                        Encounter.threshold Hard level
+                        )
+                )
+            , describe "Deadly encounter difficulty"
+                ([ ( 1, 100 )
+                 , ( 2, 200 )
+                 , ( 3, 400 )
+                 , ( 4, 500 )
+                 , ( 5, 1100 )
+                 , ( 6, 1400 )
+                 , ( 7, 1700 )
+                 , ( 8, 2100 )
+                 , ( 9, 2400 )
+                 , ( 10, 2800 )
+                 , ( 11, 3600 )
+                 , ( 12, 4500 )
+                 , ( 13, 5100 )
+                 , ( 14, 5700 )
+                 , ( 15, 6400 )
+                 , ( 16, 7200 )
+                 , ( 17, 8800 )
+                 , ( 18, 9500 )
+                 , ( 19, 10900 )
+                 , ( 20, 12700 )
+                 ]
+                    |> List.map
+                        (\( level, xp ) ->
+                            test ("level " ++ toString level) <|
+                                \() ->
+                                    Expect.equal xp <|
+                                        Encounter.threshold Deadly level
+                        )
+                )
             ]
         ]
