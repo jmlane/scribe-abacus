@@ -1,4 +1,4 @@
-# Scribe: Abacus
+# Scribe: Abacus [![Build Status](https://travis-ci.org/jmlane/scribe-abacus.svg?branch=master)](https://travis-ci.org/jmlane/scribe-abacus)
 
 Simple Web application for calculating combat encounters for a popular fantasy table-top roleplaying game.
 
