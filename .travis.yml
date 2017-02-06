@@ -3,7 +3,7 @@ cache:
     - sysconfcpus
 
 env:
-    - ELM_VERSION=0.18.0 TARGET_NODE_VERSION=latest
+    - ELM_VERSION=0.18.0 TARGET_NODE_VERSION=node
 
 before_install:
   - | # epic build time improvement - see https://github.com/elm-lang/elm-compiler/issues/1473#issuecomment-245704142
@@ -17,6 +17,10 @@ before_install:
     fi
 
 install:
+  - nvm install $TARGET_NODE_VERSION
+  - nvm use $TARGET_NODE_VERSION
+  - node --version
+  - npm --version
   - npm install -g elm@$ELM_VERSION elm-test
   - elm-test --version
   - mv $(npm config get prefix)/bin/elm-make $(npm config get prefix)/bin/elm-make-old
