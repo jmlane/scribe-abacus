@@ -29,6 +29,7 @@ install:
   - cd tests
   - npm install
   - elm-package install --yes
+  - cd ..
 
 script:
   - elm-test
