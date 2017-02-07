@@ -8,6 +8,12 @@ type Difficulty
     | Deadly
 
 
+type PartySize
+    = Standard
+    | Small
+    | Large
+
+
 threshold : Difficulty -> Int -> Int
 threshold difficulty level =
     case difficulty of
@@ -106,3 +112,37 @@ threshold difficulty level =
                 19 -> 10900
                 20 -> 12700
                 _  -> 0
+
+
+multiplier : PartySize -> Int -> Float
+multiplier size monsters =
+    if monsters <= 1 then
+        case size of
+            Small    -> 1.5
+            Standard -> 1
+            Large    -> 0.5
+    else if monsters == 2 then
+        case size of
+            Small    -> 2
+            Standard -> 1.5
+            Large    -> 1
+    else if monsters <= 6 then
+        case size of
+            Small    -> 2.5
+            Standard -> 2
+            Large    -> 1.5
+    else if monsters <= 10 then
+        case size of
+            Small    -> 3
+            Standard -> 2.5
+            Large    -> 2
+    else if monsters <= 14 then
+        case size of
+            Small    -> 4
+            Standard -> 3
+            Large    -> 2.5
+    else -- monsters >= 15
+        case size of
+            Small    -> 5
+            Standard -> 4
+            Large    -> 3
