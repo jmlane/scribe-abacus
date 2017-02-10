@@ -28,3 +28,9 @@ install:
 
 script:
   - elm-test
+
+deploy:
+  provider: surge
+  project: ./dist/
+  domain: scribe-abacus.surge.sh
+  skip_cleanup: true
