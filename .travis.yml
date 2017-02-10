@@ -35,3 +35,4 @@ deploy:
   project: ./dist/
   domain: scribe-abacus.surge.sh
   skip_cleanup: true
+  on: travis-surge-deployment # Testing only, will revert.
