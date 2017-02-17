@@ -8,7 +8,49 @@ import Encounter exposing (..)
 all : Test
 all =
     describe "Combat Encounters"
-        [ describe "XP Thresholds by character level"
+        [ describe "Party Size"
+            [ describe "Small party size (1-2)"
+                ([1, 2]
+                    |> List.map
+                        (\number ->
+                            test (toString number ++ " members") <|
+                                \() ->
+                                    Expect.equal (Just Small) <|
+                                        getPartySize number
+                        )
+                )
+            , describe "Standard party size (3-5)"
+                ([3, 4, 5]
+                    |> List.map
+                        (\number ->
+                            test (toString number ++ " members") <|
+                                \() ->
+                                    Expect.equal (Just Standard) <|
+                                        getPartySize number
+                        )
+                )
+            , describe "Large party size (>5)"
+                ([6, 7]
+                    |> List.map
+                        (\number ->
+                            test (toString number ++ " members") <|
+                                \() ->
+                                    Expect.equal (Just Large) <|
+                                        getPartySize number
+                        )
+                )
+            , describe "Invalid party size (<1)"
+                ([-1, 0]
+                    |> List.map
+                        (\number ->
+                            test (toString number ++ " members") <|
+                                \() ->
+                                    Expect.equal Nothing <|
+                                        getPartySize number
+                        )
+                )
+            ]
+        , describe "XP Thresholds by character level"
             [ describe "Easy encounter difficulty"
                 ([ ( 1, 25 )
                  , ( 2, 50 )
