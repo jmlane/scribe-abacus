@@ -1,5 +1,8 @@
 module Encounter exposing (..)
 
+{-| This module contains functions used to build a combat encounter.
+-}
+
 
 type Difficulty
     = Easy
@@ -14,6 +17,84 @@ type PartySize
     | Large
 
 
+{-| Returns the `Difficulty` of the encounter using the closest XP Threshold
+that is equal or less than total monster XP.
+-}
+getDifficulty : List Int -> List Int -> Maybe Difficulty
+getDifficulty partyLevels monsterXpValues =
+    let
+        partySize =
+            getPartySize <| List.length partyLevels
+    in
+        case partySize of
+            Nothing ->
+                Nothing
+
+            Just size ->
+                let
+                    monstersFinalXp =
+                        monstersXp size monsterXpValues
+
+                    difficulties =
+                        [Deadly, Hard, Medium, Easy]
+
+                    flipPartyThreshold : Difficulty -> Int
+                    flipPartyThreshold =
+                        (flip partyThreshold) partyLevels
+
+                    diffThresholdPairs : List ( Difficulty, Int )
+                    diffThresholdPairs =
+                        difficulties
+                            |> List.map flipPartyThreshold
+                            |> List.map2 (,) difficulties
+
+                    iterate : List ( Difficulty, Int ) -> Maybe Difficulty
+                    iterate list =
+                        case list of
+                            [] -> Nothing
+
+                            x::xs ->
+                                let
+                                    (diff, xp) = x
+                                in
+                                    if xp <= monstersFinalXp then
+                                        Just diff
+                                    else
+                                        iterate xs
+                in
+                    iterate diffThresholdPairs
+
+
+getPartySize : Int -> Maybe PartySize
+getPartySize count =
+    if count > 5 then
+        Just Large
+    else if count >= 3 then
+        Just Standard
+    else if count > 0 then
+        Just Small
+    else
+        Nothing
+
+
+monstersXp : PartySize -> List Int -> Int
+monstersXp partySize monsters =
+    let
+        coefficient = multiplier partySize <| List.length monsters
+        sum = toFloat <| List.sum monsters
+    in
+        floor <| sum * coefficient
+
+
+partyThreshold : Difficulty -> List Int -> Int
+partyThreshold difficulty party =
+    party
+        |> List.map (threshold difficulty)
+        |> List.sum
+
+
+{-| Return the XP Threshold by Difficulty for a given character level.
+-}
 threshold : Difficulty -> Int -> Int
 threshold difficulty level =
     case difficulty of
@@ -114,6 +195,10 @@ threshold difficulty level =
                 _  -> 0
 
 
+{-| Return the XP multiplier by party size for a given amount of monsters.
+
+Note: this function does not consider Challenge Rating.
+-}
 multiplier : PartySize -> Int -> Float
 multiplier size monsters =
     if monsters <= 1 then
