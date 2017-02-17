@@ -283,7 +283,7 @@ all =
                     \() ->
                         Expect.equal (Just Medium) <|
                             getDifficulty (List.repeat 2 3) (List.repeat 2 100)
-                ]
+
                 , test "15 rugs of smothering are Deadly for 2 level 20s" <|
                     -- 5x multiplier: 5(450xp x 15) >= 25400 Deadly
                     \() ->
