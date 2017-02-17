@@ -207,4 +207,41 @@ all =
                         )
                 )
             ]
+        , describe "Difficulty of Combat Encounter"
+            [ describe "Standard party size (3-5)"
+                [ test "1 ghoul is Medium difficulty for 4 level 1s" <|
+                    -- 1x multiplier: Hard 300 > 200xp >= 200 Medium
+                    \() ->
+                        Expect.equal (Just Medium) <|
+                            getDifficulty [1, 1, 1, 1] [200]
+
+                , test "4 kobolds are Medium difficulty for 4 level 1s" <|
+                    -- 2x multiplier: Hard 300 > 2(25xp x 4) >= 200 Medium
+                    \() ->
+                        Expect.equal (Just Medium) <|
+                            getDifficulty [1, 1, 1, 1] [25, 25, 25, 25]
+
+                ]
+            , describe "Large party size (>5)"
+                [ test "2 harpies are Medium difficulty for 5 level 2s" <|
+                    -- 1x multiplier: Hard 750 > 200xp x 2 >= 500 Medium
+                    \() ->
+                        Expect.equal (Just Medium) <|
+                            getDifficulty (List.repeat 5 2) [200, 200]
+
+                , test "10 giant lizards are Medium difficulty for 5 level 2s"
+                    <|
+                    -- 2x multiplier: Hard 750 > 2(25xp x 10) >= 500 Mediun
+                    \() ->
+                        Expect.equal (Just Medium) <|
+                            getDifficulty (List.repeat 5 2) (List.repeat 10 25)
+                ]
+            , describe "Small party size (1-2)"
+                [ test "2 gnolls are Medium difficulty for 2 level 3s" <|
+                    -- 2x multiplier: Hard 450 > 2(100xp x 2) >= 300 Medium
+                    \() ->
+                        Expect.equal (Just Medium) <|
+                            getDifficulty (List.repeat 2 3) (List.repeat 2 100)
+                ]
+            ]
         ]
