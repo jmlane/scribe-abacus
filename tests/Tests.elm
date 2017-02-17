@@ -173,7 +173,7 @@ all =
                 )
             ]
         , describe "Encounter multiplers"
-            [ describe "Standard size party (3–5)"
+            [ describe "Standard size party (3-5)"
                 ([ ( 1, 1 )
                  , ( 2, 1.5 )
                  , ( 3, 2 )
@@ -262,7 +262,6 @@ all =
                     \() ->
                         Expect.equal (Just Medium) <|
                             getDifficulty [1, 1, 1, 1] [25, 25, 25, 25]
-
                 ]
             , describe "Large party size (>5)"
                 [ test "2 harpies are Medium difficulty for 5 level 2s" <|
