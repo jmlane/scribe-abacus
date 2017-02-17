@@ -1,5 +1,8 @@
 module Encounter exposing (..)
 
+{-| This module contains functions used to build a combat encounter.
+-}
+
 
 type Difficulty
     = Easy
@@ -90,6 +93,8 @@ partyThreshold difficulty party =
         |> List.sum
 
 
+{-| Return the XP Threshold by Difficulty for a given character level.
+-}
 threshold : Difficulty -> Int -> Int
 threshold difficulty level =
     case difficulty of
@@ -190,6 +195,10 @@ threshold difficulty level =
                 _  -> 0
 
 
+{-| Return the XP multiplier by party size for a given amount of monsters.
+
+Note: this function does not consider Challenge Rating.
+-}
 multiplier : PartySize -> Int -> Float
 multiplier size monsters =
     if monsters <= 1 then
