@@ -290,6 +290,12 @@ all =
                         Expect.equal (Just Deadly) <|
                             getDifficulty (List.repeat 2 20) (List.repeat 15 450)
                             -- TODO: move suites to distinct files. line >80^
+
+                , test "1 homunculus is Easy for 1 level 1" <|
+                    -- 1.5x multiplier: Easy 25 > 1.5(16xp)
+                    \() ->
+                        Expect.equal (Just Easy) <|
+                            getDifficulty [1] [10]
                 ]
             ]
         ]
