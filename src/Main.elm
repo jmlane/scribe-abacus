@@ -4,20 +4,22 @@ import Html exposing (..)
 import Html.Attributes exposing (type_, value)
 import Html.Events
 import Json.Decode
+import Encounter exposing (..)
 
 
 main : Program Never Model Msg
 main =
     beginnerProgram
-        { model = Model "" ""
+        { model = Model 0 0 Nothing
         , view = view
         , update = update
         }
 
 
 type alias Model =
-    { party : String
-    , monster : String
+    { party : Int
+    , monster : Int
+    , difficulty : Maybe Difficulty
     }
 
 
@@ -30,10 +32,26 @@ update : Msg -> Model -> Model
 update msg model =
     case msg of
         ChangeMonster value ->
-            { model | monster = value }
+            case String.toInt value of
+                Ok value ->
+                    { model
+                    | monster = value
+                    , difficulty =
+                        getDifficulty [model.party] [value]
+                    }
+                Err _ ->
+                    model
 
         ChangeParty value ->
-            { model | party = value }
+            case String.toInt value of
+                Ok value ->
+                    { model
+                    | party = value
+                    , difficulty =
+                        getDifficulty [value] [model.monster]
+                    }
+                Err _ ->
+                    model
 
 
 view : Model -> Html Msg
@@ -41,9 +59,9 @@ view model =
     section []
         [ h1 [] [ text "Encounter Calculator" ]
         , form []
-            [ viewParty model.party
-            , viewMonsters model.monster
-            , text "Difficulty"
+            [ viewParty <| toString model.party
+            , viewMonsters <| toString model.monster
+            , viewDifficulty model.difficulty
             ]
         ]
 
@@ -53,8 +71,8 @@ viewParty party =
         [ h3 [] [ text "Party" ]
         , label []
             [ input
-                [ --type_ "number"
-                 onChange ChangeParty
+                [ type_ "number"
+                , onChange ChangeParty
                 , value party
                 ]
                 []
@@ -69,8 +87,8 @@ viewMonsters monster =
         [ h3 [] [ text "Monsters" ]
         , label []
             [ input
-                [ --type_ "number"
-                 onChange ChangeMonster
+                [ type_ "number"
+                , onChange ChangeMonster
                 , value monster
                 ]
                 []
@@ -80,8 +98,29 @@ viewMonsters monster =
         -- TODO: show XP values (per monster/per encounter)
 
 
+viewDifficulty difficulty =
+    let
+        difficultyString =
+            case difficulty of
+                Just x  -> difficultyToString x
+                Nothing -> ""
+    in
+        div []
+            [ text <| "Difficulty: " ++ difficultyString
+            ]
+
+
 onChange : (String -> Msg) -> Attribute Msg
 onChange tagger =
     Html.Events.on "change" <|
         Json.Decode.map tagger <|
             Json.Decode.at [ "target" , "value" ] Json.Decode.string
+
+
+difficultyToString : Difficulty -> String
+difficultyToString difficulty =
+    case difficulty of
+        Easy   -> "Easy"
+        Medium -> "Medium"
+        Hard   -> "Hard"
+        Deadly -> "Deadly"
