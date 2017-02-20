@@ -57,7 +57,10 @@ getDifficulty partyLevels monsterXpValues =
                                 let
                                     (diff, xp) = x
                                 in
-                                    if xp <= monstersFinalXp then
+                                    if
+                                        xp <= monstersFinalXp
+                                        || diff == Easy
+                                    then
                                         Just diff
                                     else
                                         iterate xs
