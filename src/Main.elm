@@ -59,11 +59,23 @@ view model =
     section []
         [ h1 [] [ text "Encounter Calculator" ]
         , form []
-            [ viewParty <| toString model.party
+            [ viewDifficulty model.difficulty
+            , viewParty <| toString model.party
             , viewMonsters <| toString model.monster
-            , viewDifficulty model.difficulty
             ]
         ]
+
+
+viewDifficulty difficulty =
+    let
+        difficultyString =
+            case difficulty of
+                Just x  -> difficultyToString x ++ " encounter"
+                Nothing -> "Invalid encounter state"
+    in
+        div []
+            [ h2 [] [ text difficultyString ]
+            ]
 
 
 viewParty party =
@@ -96,18 +108,6 @@ viewMonsters monster =
         ]
         -- TODO: dynamic monster inputs
         -- TODO: show XP values (per monster/per encounter)
-
-
-viewDifficulty difficulty =
-    let
-        difficultyString =
-            case difficulty of
-                Just x  -> difficultyToString x
-                Nothing -> ""
-    in
-        div []
-            [ text <| "Difficulty: " ++ difficultyString
-            ]
 
 
 onChange : (String -> Msg) -> Attribute Msg
