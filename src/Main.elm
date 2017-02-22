@@ -17,34 +17,28 @@ main =
 
 
 type alias Model =
-    { party : Party
-    , monsters : Monsters
+    { party : Side
+    , monsters : Side
     , difficulty : Maybe Difficulty
     }
 
 
-type alias Party =
-    { first : (String, Int)
-    , rest : List (String, Int)
-    }
-
-
-type alias Monsters =
+type alias Side =
     { first : (String, Int)
     , rest : List (String, Int)
     }
 
 
 type Msg
-    = ChangeMonster String
-    | ChangeParty String
+    = ChangeMonster String String
+    | ChangeParty String String
 
 
 init : Model
 init =
     Model
-        (Party ("", 0) [])
-        (Monsters ("", 0) [])
+        (Side ("", 0) [])
+        (Side ("", 0) [])
         Nothing
 
 
@@ -54,28 +48,46 @@ update msg model =
         monsters = model.monsters
         party = model.party
     in
-    case msg of
-        ChangeMonster value ->
-            case String.toInt value of
-                Ok value ->
-                    { model
-                    | monsters = { monsters | first = ("", value) } 
-                    , difficulty =
-                        getDifficulty [Tuple.second party.first] [value]
-                    }
-                Err _ ->
-                    model
+        case msg of
+            ChangeMonster id xp ->
+                case String.toInt xp of
+                    Ok xp ->
+                        { model
+                        | monsters = updateMember monsters id xp
+                        , difficulty =
+                            getDifficulty [Tuple.second party.first] [xp]
+                        }
 
-        ChangeParty value ->
-            case String.toInt value of
-                Ok value ->
-                    { model
-                    | party = { party | first = ("", value) }
-                    , difficulty =
-                        getDifficulty [value] [Tuple.second monsters.first]
-                    }
-                Err _ ->
-                    model
+                    Err _ ->
+                        model
+
+            ChangeParty id level ->
+                case String.toInt level of
+                    Ok level ->
+                        { model
+                        | party = updateMember party id level
+                        , difficulty =
+                            getDifficulty [level] [Tuple.second monsters.first]
+                        }
+
+                    Err _ ->
+                        model
+
+
+updateMember : Side -> String -> Int -> Side
+updateMember side key newValue =
+    let
+        updateRest (thisKey, thisValue) =
+            if thisKey == key then
+                (key, newValue)
+            else
+                (thisKey, thisValue)
+
+    in
+        if (Tuple.first side.first) == key then
+            { side | first = (key, newValue) }
+        else
+            { side | rest = List.map updateRest side.rest }
 
 
 view : Model -> Html Msg
@@ -102,37 +114,37 @@ viewDifficulty difficulty =
             ]
 
 
-viewParty : Party -> Html Msg
+viewParty : Side -> Html Msg
 viewParty party =
     div []
         [ h3 [] [ text "Party" ]
         , ul [] <|
-            viewEncounterMemberLi ChangeParty party.first ::
-            List.map (viewEncounterMemberLi ChangeParty) party.rest
+            viewSideMemberLi ChangeParty party.first ::
+            List.map (viewSideMemberLi ChangeParty) party.rest
             ]
         -- TODO: dynamic party inputs
         -- TODO: show XP thresholds
 
 
-viewMonsters : Monsters -> Html Msg
+viewMonsters : Side -> Html Msg
 viewMonsters monsters =
     div []
         [ h3 [] [ text "Monsters" ]
         , ul [] <|
-            viewEncounterMemberLi ChangeMonster monsters.first ::
-            List.map (viewEncounterMemberLi ChangeMonster) monsters.rest
+            viewSideMemberLi ChangeMonster monsters.first ::
+            List.map (viewSideMemberLi ChangeMonster) monsters.rest
         ]
         -- TODO: dynamic monster inputs
         -- TODO: show XP values (per monster/per encounter)
 
 
-viewEncounterMemberLi : (String -> Msg) -> (String, Int) -> Html Msg
-viewEncounterMemberLi msg (name, value) =
+viewSideMemberLi : (String -> String -> Msg) -> (String, Int) -> Html Msg
+viewSideMemberLi tagger (id, value) =
     li []
         [ label []
             [ input
                 [ type_ "number"
-                , onChange msg
+                , onChange <| tagger id
                 , Html.Attributes.value <| toString value
                 ]
                 []
