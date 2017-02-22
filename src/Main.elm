@@ -2,7 +2,7 @@ module Main exposing (main)
 
 import Html exposing (..)
 import Html.Attributes exposing (type_, value)
-import Html.Events
+import Html.Events exposing (onClick)
 import Json.Decode
 import Encounter exposing (..)
 
@@ -30,16 +30,44 @@ type alias Side =
 
 
 type Msg
-    = ChangeMonster String String
+    = AddMonster
+    | AddPartyMember
+    | ChangeMonster String String
     | ChangeParty String String
+    | RemoveMonster
+    | RemovePartyMember
 
 
 init : Model
 init =
-    Model
-        (Side ("", 0) [])
-        (Side ("", 0) [])
-        Nothing
+    let
+        party =
+            case List.map defaultPartyMember <| List.range 0 3 of
+                first::rest ->
+                    Side (first) (rest)
+
+                [] ->
+                    Side (defaultPartyMember 0) []
+
+        monsters =
+            case List.map defaultMonster <| List.range 0 3 of
+                first::rest ->
+                    Side (first) (rest)
+
+                [] ->
+                    Side (defaultMonster 0) []
+    in
+        Model party monsters Nothing
+
+
+defaultPartyMember : Int -> (String, Int)
+defaultPartyMember nextId =
+    ("party-" ++ toString nextId, 0)
+
+
+defaultMonster : Int -> (String, Int)
+defaultMonster nextId =
+    ("monster-" ++ toString nextId, 0)
 
 
 update : Msg -> Model -> Model
@@ -49,6 +77,12 @@ update msg model =
         party = model.party
     in
         case msg of
+            AddMonster ->
+                addMonster model
+
+            AddPartyMember ->
+                addPartyMember model
+
             ChangeMonster id xp ->
                 case String.toInt xp of
                     Ok xp ->
@@ -72,6 +106,66 @@ update msg model =
 
                     Err _ ->
                         model
+
+            RemoveMonster ->
+                removeMonster model
+
+            RemovePartyMember ->
+                removePartyMember model
+
+
+addMonster : Model -> Model
+addMonster model =
+    let
+        monsters = model.monsters
+        nextId = List.length model.monsters.rest + 1
+    in
+        { model
+        | monsters =
+            { monsters
+            | rest = monsters.rest ++ [defaultMonster nextId]
+            }
+        }
+
+
+addPartyMember : Model -> Model
+addPartyMember model =
+    let
+        party = model.party
+        nextId = List.length model.party.rest + 1
+    in
+        { model
+        | party =
+            { party
+            | rest = party.rest ++ [defaultPartyMember nextId]
+            }
+        }
+
+
+removeMonster : Model -> Model
+removeMonster model =
+    let
+        monsters = model.monsters
+    in
+        { model
+        | monsters =
+            { monsters
+            | rest = List.take (List.length monsters.rest - 1) monsters.rest
+            }
+        }
+
+
+removePartyMember : Model -> Model
+removePartyMember model =
+    let
+        party = model.party
+    in
+        { model
+        | party =
+            { party
+            | rest = List.take (List.length party.rest - 1) party.rest
+            }
+        }
 
 
 updateMember : Side -> String -> Int -> Side
@@ -122,8 +216,9 @@ viewParty party =
         , ul [] <|
             viewSideMemberLi ChangeParty party.first ::
             List.map (viewSideMemberLi ChangeParty) party.rest
-            ]
-        -- TODO: dynamic party inputs
+        , button [ type_ "button", onClick AddPartyMember ] [ text "Add" ]
+        , button [ type_ "button", onClick RemovePartyMember ] [ text "Remove" ]
+        ]
         -- TODO: show XP thresholds
 
 
@@ -134,8 +229,9 @@ viewMonsters monsters =
         , ul [] <|
             viewSideMemberLi ChangeMonster monsters.first ::
             List.map (viewSideMemberLi ChangeMonster) monsters.rest
+        , button [ type_ "button", onClick AddMonster ] [ text "Add" ]
+        , button [ type_ "button", onClick RemoveMonster ] [ text "Remove" ]
         ]
-        -- TODO: dynamic monster inputs
         -- TODO: show XP values (per monster/per encounter)
 
 
