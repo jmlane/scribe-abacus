@@ -102,6 +102,7 @@ view model =
         ]
 
 
+viewDifficulty : Maybe Difficulty -> Html Msg
 viewDifficulty difficulty =
     let
         difficultyString =
