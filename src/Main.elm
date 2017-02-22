@@ -78,10 +78,28 @@ update msg model =
     in
         case msg of
             AddMonster ->
-                addMonster model
+                let
+                    monsters = model.monsters
+                    nextId = List.length model.monsters.rest + 1
+                in
+                    { model
+                    | monsters =
+                        { monsters
+                        | rest = monsters.rest ++ [defaultMonster nextId]
+                        }
+                    }
 
             AddPartyMember ->
-                addPartyMember model
+                let
+                    party = model.party
+                    nextId = List.length model.party.rest + 1
+                in
+                    { model
+                    | party =
+                        { party
+                        | rest = party.rest ++ [defaultPartyMember nextId]
+                        }
+                    }
 
             ChangeMonster id xp ->
                 case String.toInt xp of
@@ -108,62 +126,30 @@ update msg model =
                         model
 
             RemoveMonster ->
-                removeMonster model
+    let
+        monsters = model.monsters
+    in
+        { model
+        | monsters =
+            { monsters
+                        | rest =
+                            List.take
+                                (List.length monsters.rest - 1)
+                                monsters.rest
+            }
+        }
 
             RemovePartyMember ->
-                removePartyMember model
-
-
-addMonster : Model -> Model
-addMonster model =
-    let
-        monsters = model.monsters
-        nextId = List.length model.monsters.rest + 1
-    in
-        { model
-        | monsters =
-            { monsters
-            | rest = monsters.rest ++ [defaultMonster nextId]
-            }
-        }
-
-
-addPartyMember : Model -> Model
-addPartyMember model =
-    let
-        party = model.party
-        nextId = List.length model.party.rest + 1
-    in
-        { model
-        | party =
-            { party
-            | rest = party.rest ++ [defaultPartyMember nextId]
-            }
-        }
-
-
-removeMonster : Model -> Model
-removeMonster model =
-    let
-        monsters = model.monsters
-    in
-        { model
-        | monsters =
-            { monsters
-            | rest = List.take (List.length monsters.rest - 1) monsters.rest
-            }
-        }
-
-
-removePartyMember : Model -> Model
-removePartyMember model =
     let
         party = model.party
     in
         { model
         | party =
             { party
-            | rest = List.take (List.length party.rest - 1) party.rest
+                        | rest =
+                            List.take
+                                (List.length party.rest - 1)
+                                party.rest
             }
         }
 
