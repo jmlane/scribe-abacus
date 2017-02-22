@@ -19,7 +19,6 @@ main =
 type alias Model =
     { party : Side
     , monsters : Side
-    , difficulty : Maybe Difficulty
     }
 
 
@@ -57,7 +56,7 @@ init =
                 [] ->
                     Side (defaultMonster 0) []
     in
-        Model party monsters Nothing
+        Model party monsters
 
 
 defaultPartyMember : Int -> (String, Int)
@@ -106,8 +105,6 @@ update msg model =
                     Ok xp ->
                         { model
                         | monsters = updateMember monsters id xp
-                        , difficulty =
-                            getDifficulty [Tuple.second party.first] [xp]
                         }
 
                     Err _ ->
@@ -118,8 +115,6 @@ update msg model =
                     Ok level ->
                         { model
                         | party = updateMember party id level
-                        , difficulty =
-                            getDifficulty [level] [Tuple.second monsters.first]
                         }
 
                     Err _ ->
@@ -175,23 +170,33 @@ view model =
     section []
         [ h1 [] [ text "Encounter Calculator" ]
         , form []
-            [ viewDifficulty model.difficulty
+            [ viewDifficulty model
             , viewParty model.party
             , viewMonsters model.monsters
             ]
         ]
 
 
-viewDifficulty : Maybe Difficulty -> Html Msg
-viewDifficulty difficulty =
+viewDifficulty : Model -> Html Msg
+viewDifficulty model =
     let
-        difficultyString =
+        levels =
+            [model.party.first] ++ model.party.rest
+                |> List.unzip
+                |> Tuple.second
+
+        xps =
+            [model.monsters.first] ++ model.monsters.rest
+                |> List.unzip
+                |> Tuple.second
+
+        difficultyString difficulty =
             case difficulty of
                 Just x  -> difficultyToString x ++ " encounter"
                 Nothing -> "Invalid encounter state"
     in
         div []
-            [ h2 [] [ text difficultyString ]
+            [ h2 [] [ text <| difficultyString <| getDifficulty levels xps ]
             ]
 
 
