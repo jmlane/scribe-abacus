@@ -83,8 +83,11 @@ getPartySize count =
 monstersXp : PartySize -> List Int -> Int
 monstersXp partySize monsters =
     let
-        coefficient = multiplier partySize <| List.length monsters
-        sum = toFloat <| List.sum monsters
+        validMonsters =
+            List.filter ((>) 0) monsters
+
+        coefficient = multiplier partySize <| List.length validMonsters
+        sum = toFloat <| List.sum validMonsters
     in
         floor <| sum * coefficient
 
