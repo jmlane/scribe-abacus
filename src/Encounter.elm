@@ -84,7 +84,7 @@ monstersXp : PartySize -> List Int -> Int
 monstersXp partySize monsters =
     let
         validMonsters =
-            List.filter ((>) 0) monsters
+            List.filter ((<=) 0) monsters
 
         coefficient = multiplier partySize <| List.length validMonsters
         sum = toFloat <| List.sum validMonsters

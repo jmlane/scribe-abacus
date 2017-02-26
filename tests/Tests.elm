@@ -3,6 +3,7 @@ module Tests exposing (..)
 import Test exposing (..)
 import Expect
 import Encounter exposing (..)
+import Fuzz exposing (int, list)
 
 
 all : Test
@@ -306,4 +307,18 @@ all =
                             getDifficulty [1] [10]
                 ]
             ]
+        , describe "Total monsters' XP"
+            ([ Small, Standard, Large ]
+                |> List.map
+                    (\size ->
+                        describe (toString size)
+                            [ fuzz (list int)
+                                "should always be zero or positive"
+                              <|
+                                \xps ->
+                                    Expect.atLeast 0 <|
+                                        Encounter.monstersXp size xps
+                            ]
+                    )
+            )
         ]
