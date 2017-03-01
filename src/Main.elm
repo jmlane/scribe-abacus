@@ -23,9 +23,13 @@ type alias Model =
 
 
 type alias Side =
-    { first : ( String, Int )
-    , rest : List ( String, Int )
+    { first : Member
+    , rest : List ( Member )
     }
+
+
+type alias Member =
+    ( String, Int )
 
 
 type Msg
@@ -59,12 +63,12 @@ init =
         Model party monsters
 
 
-defaultPartyMember : Int -> ( String, Int )
+defaultPartyMember : Int -> Member
 defaultPartyMember nextId =
     ( "party-" ++ toString nextId, 0 )
 
 
-defaultMonster : Int -> ( String, Int )
+defaultMonster : Int -> Member
 defaultMonster nextId =
     ( "monster-" ++ toString nextId, 0 )
 
@@ -194,15 +198,21 @@ view model =
 viewDifficulty : Model -> Html Msg
 viewDifficulty model =
     let
-        levels =
+        monsters =
+            [ model.monsters.first ]
+                ++ model.monsters.rest
+
+        party =
             [ model.party.first ]
                 ++ model.party.rest
+
+        levels =
+            party
                 |> List.unzip
                 |> Tuple.second
 
         xps =
-            [ model.monsters.first ]
-                ++ model.monsters.rest
+            monsters
                 |> List.unzip
                 |> Tuple.second
 
@@ -215,8 +225,44 @@ viewDifficulty model =
                     "Invalid encounter state"
     in
         div []
-            [ h2 [] [ text <| difficultyString <| getDifficulty levels xps ]
+            [ h2
+                []
+                [ text <|
+                    difficultyString <|
+                        Encounter.getDifficulty levels xps
+                ]
+            , viewModelErrors monsters party
             ]
+
+
+viewModelErrors : List Member -> List Member -> Html Msg
+viewModelErrors monsters party =
+    let
+        monstersErrors =
+            if List.any (((>=) 0) << Tuple.second) <| monsters then
+                [ "Monster XP must be greater than zero." ]
+            else
+                []
+
+        partyErrors =
+            if List.any (((>=) 0) << Tuple.second) <| party then
+                [ "Party member character level must be greater than zero." ]
+            else
+                []
+
+        errors =
+            []
+                ++ monstersErrors
+                ++ partyErrors
+    in
+        if not <| List.isEmpty <| errors then
+            div
+                []
+                [ h3 [] [ text "Errors" ]
+                , ol [] <| List.map (\error -> li [] [ text error ]) errors
+                ]
+        else
+            div [] []
 
 
 viewParty : Side -> Html Msg
@@ -251,7 +297,7 @@ viewMonsters monsters =
 -- TODO: show XP values (per monster/per encounter)
 
 
-viewSideMemberLi : (String -> String -> Msg) -> ( String, Int ) -> Html Msg
+viewSideMemberLi : (String -> String -> Msg) -> Member -> Html Msg
 viewSideMemberLi tagger ( id, value ) =
     li []
         [ label []
