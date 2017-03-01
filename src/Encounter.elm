@@ -65,7 +65,10 @@ getDifficulty partyLevels monsterXpValues =
                                     else
                                         iterate xs
                 in
-                    iterate diffThresholdPairs
+                    if monstersFinalXp <= 0 || List.sum partyLevels <= 0 then
+                        Nothing
+                    else
+                        iterate diffThresholdPairs
 
 
 getPartySize : Int -> Maybe PartySize

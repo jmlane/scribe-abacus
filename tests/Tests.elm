@@ -259,7 +259,29 @@ all =
                 )
             ]
         , describe "Difficulty of Combat Encounter"
-            [ describe "Standard party size (3-5)"
+            [ describe "Invariants"
+                [ fuzz (list int)
+                    "Function must have at least one party member" <|
+                        \list ->
+                            Expect.equal Nothing <|
+                                Encounter.getDifficulty [] list
+                , fuzz (list int)
+                    "Function must have at least one monster" <|
+                        \list ->
+                            Expect.equal Nothing <|
+                                Encounter.getDifficulty list []
+                , fuzz (list int)
+                    "Function must have at least one postive party level" <|
+                        \list ->
+                            Expect.equal Nothing <|
+                                Encounter.getDifficulty [0] list
+                , fuzz (list int)
+                    "Function must have at least one postive monster XP" <|
+                        \list ->
+                            Expect.equal Nothing <|
+                                Encounter.getDifficulty list [0]
+                ]
+            , describe "Standard party size (3-5)"
                 [ test "1 ghoul is Medium difficulty for 4 level 1s" <|
                     -- 1x multiplier: Hard 300 > 200xp >= 200 Medium
                     \() ->
